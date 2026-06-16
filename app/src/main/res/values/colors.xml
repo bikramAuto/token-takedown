@@ -23,4 +23,17 @@
     <color name="accent_gold_glow">#55FFD700</color>
     <color name="text_primary">#E0E0E0</color>
     <color name="text_secondary">#888888</color>
+
+    <!-- Premium Purple Theme -->
+    <color name="purple_gradient_start">#2D1B69</color>
+    <color name="purple_gradient_mid">#1F1145</color>
+    <color name="purple_gradient_end">#0D0620</color>
+    <color name="magenta_accent">#C850C0</color>
+    <color name="magenta_glow">#44C850C0</color>
+    <color name="surface_glass">#22FFFFFF</color>
+    <color name="surface_glass_border">#33FFFFFF</color>
+    <color name="purple_surface">#1A1030</color>
+    <color name="purple_surface_light">#2A1A50</color>
+    <color name="gold_gradient_start">#FFD700</color>
+    <color name="gold_gradient_end">#FFA500</color>
 </resources>

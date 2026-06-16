@@ -6,7 +6,33 @@
         <item name="colorOnPrimary">@color/black</item>
         <!-- Background/Surface colors. -->
         <item name="android:windowBackground">@color/dark_bg</item>
-        <item name="android:navigationBarColor">@color/dark_bg</item>
-        <item name="android:statusBarColor">@color/dark_bg</item>
+        <item name="android:navigationBarColor">@color/purple_gradient_end</item>
+        <item name="android:statusBarColor">@color/purple_gradient_start</item>
+    </style>
+
+    <!-- Circular icon button style -->
+    <style name="CircleIconButton">
+        <item name="android:layout_width">60dp</item>
+        <item name="android:layout_height">60dp</item>
+        <item name="android:background">@drawable/bg_settings_circle_button</item>
+        <item name="android:padding">15dp</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:elevation">4dp</item>
+    </style>
+
+    <!-- Player chip style -->
+    <style name="PlayerChip">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <!-- Circle Image style overlay for ShapeableImageView -->
+    <style name="CircleImage">
+        <item name="cornerSize">50%</item>
     </style>
 </resources>

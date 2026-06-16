@@ -5,9 +5,10 @@
     android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dark_bg"
+    android:background="@drawable/bg_gradient_purple"
     android:padding="8dp"
     android:clipChildren="false"
+    android:clipToPadding="false"
     tools:context=".MainActivity">
 
     <!-- Player 0 (Red) Indicator -->
@@ -15,19 +16,69 @@
         android:id="@+id/indicator_0"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="@drawable/indicator_bg"
-        android:padding="4dp"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
         android:clipChildren="false"
+        android:clipToPadding="false"
+        android:elevation="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/board_card"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp">
-        
-        <ImageView android:id="@+id/icon_0" android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/circle_indicator" app:tint="@color/ludo_red" android:layout_margin="4dp"/>
-        <FrameLayout android:id="@+id/placeholder_0" android:layout_width="60dp" android:layout_height="60dp" android:background="@drawable/placeholder_bg" android:clipChildren="false" />
+
+        <TextView
+            android:id="@+id/tv_name_0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Player 1"
+            android:textColor="@color/white"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:maxLength="10"
+            android:singleLine="true"
+            android:background="@drawable/bg_name_pill"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="6dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clipChildren="false">
+
+            <FrameLayout
+                android:id="@+id/placeholder_0"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:background="@drawable/placeholder_bg"
+                android:clipChildren="false" />
+
+            <ImageView
+                android:id="@+id/pointer_0"
+                android:layout_width="8dp"
+                android:layout_height="12dp"
+                android:layout_marginHorizontal="4dp"
+                android:src="@drawable/ic_pointer_right"
+                android:visibility="invisible"
+                android:contentDescription="Turn Indicator Pointer" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/avatar_0"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                app:shapeAppearanceOverlay="@style/CircleImage"
+                app:strokeColor="@color/ludo_red"
+                app:strokeWidth="2dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_person"
+                android:background="@color/white"
+                android:padding="8dp"
+                android:contentDescription="Player 1 Avatar" />
+
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Floating Header Bar -->
@@ -36,9 +87,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        app:cardBackgroundColor="@color/dark_surface"
-        app:cardCornerRadius="12dp"
+        app:cardBackgroundColor="#20FFFFFF"
+        app:cardCornerRadius="16dp"
         app:cardElevation="4dp"
+        app:strokeColor="#22FFFFFF"
+        app:strokeWidth="1dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -51,10 +104,12 @@
 
             <ImageButton
                 android:id="@+id/btn_home"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
                 android:src="@drawable/ic_home"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="@drawable/bg_circle_button"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:contentDescription="Home" />
@@ -67,14 +122,18 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:letterSpacing="0.05"
+                android:shadowColor="@color/accent_gold"
+                android:shadowRadius="10"
                 android:layout_centerInParent="true" />
 
             <ImageButton
                 android:id="@+id/btn_reset"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
                 android:src="@drawable/ic_refresh"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="@drawable/bg_circle_button"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:contentDescription="Reset" />
@@ -86,18 +145,67 @@
         android:id="@+id/indicator_1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="@drawable/indicator_bg"
-        android:padding="4dp"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
         android:clipChildren="false"
+        android:clipToPadding="false"
+        android:elevation="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header_controls"
         android:layout_marginTop="8dp">
-        
-        <FrameLayout android:id="@+id/placeholder_1" android:layout_width="60dp" android:layout_height="60dp" android:background="@drawable/placeholder_bg" android:clipChildren="false" />
-        <ImageView android:id="@+id/lori_dp_1" android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/lori_avatar" android:visibility="gone" android:layout_margin="4dp" />
-        <ImageView android:id="@+id/icon_1" android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/circle_indicator" app:tint="@color/ludo_green" android:layout_margin="4dp"/>
+
+        <TextView
+            android:id="@+id/tv_name_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Player 2"
+            android:textColor="@color/white"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:maxLength="10"
+            android:singleLine="true"
+            android:background="@drawable/bg_name_pill"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="6dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clipChildren="false">
+
+            <FrameLayout
+                android:id="@+id/placeholder_1"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:background="@drawable/placeholder_bg"
+                android:clipChildren="false" />
+
+            <ImageView
+                android:id="@+id/pointer_1"
+                android:layout_width="8dp"
+                android:layout_height="12dp"
+                android:layout_marginHorizontal="4dp"
+                android:src="@drawable/ic_pointer_right"
+                android:visibility="invisible"
+                android:contentDescription="Turn Indicator Pointer" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/avatar_1"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                app:shapeAppearanceOverlay="@style/CircleImage"
+                app:strokeColor="@color/ludo_green"
+                app:strokeWidth="2dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_person"
+                android:background="@color/white"
+                android:padding="8dp"
+                android:contentDescription="Player 2 Avatar" />
+
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Ludo Board Container -->
@@ -108,8 +216,9 @@
         android:layout_marginVertical="8dp"
         app:cardCornerRadius="24dp"
         app:cardBackgroundColor="@color/board_bg"
-        app:strokeColor="@color/board_grid"
+        app:strokeColor="#33C850C0"
         app:strokeWidth="1.5dp"
+        app:cardElevation="8dp"
         app:layout_constraintBottom_toTopOf="@id/indicator_0"
         app:layout_constraintTop_toBottomOf="@id/indicator_1">
 
@@ -127,20 +236,69 @@
         android:id="@+id/indicator_3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="@drawable/indicator_bg"
-        android:padding="4dp"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
         android:clipChildren="false"
+        android:clipToPadding="false"
+        android:elevation="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/board_card"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp">
-        
-        <ImageView android:id="@+id/icon_3" android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/circle_indicator" app:tint="@color/ludo_blue" android:layout_margin="4dp"/>
-        <ImageView android:id="@+id/lori_dp_3" android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/lori_avatar" android:visibility="gone" android:layout_margin="4dp" />
-        <FrameLayout android:id="@+id/placeholder_3" android:layout_width="60dp" android:layout_height="60dp" android:background="@drawable/placeholder_bg" android:clipChildren="false" />
+
+        <TextView
+            android:id="@+id/tv_name_3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Player 4"
+            android:textColor="@color/white"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:maxLength="10"
+            android:singleLine="true"
+            android:background="@drawable/bg_name_pill"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="6dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clipChildren="false">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/avatar_3"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                app:shapeAppearanceOverlay="@style/CircleImage"
+                app:strokeColor="@color/ludo_blue"
+                app:strokeWidth="2dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_person"
+                android:background="@color/white"
+                android:padding="8dp"
+                android:contentDescription="Player 4 Avatar" />
+
+            <ImageView
+                android:id="@+id/pointer_3"
+                android:layout_width="8dp"
+                android:layout_height="12dp"
+                android:layout_marginHorizontal="4dp"
+                android:src="@drawable/ic_pointer_left"
+                android:visibility="invisible"
+                android:contentDescription="Turn Indicator Pointer" />
+
+            <FrameLayout
+                android:id="@+id/placeholder_3"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:background="@drawable/placeholder_bg"
+                android:clipChildren="false" />
+
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Player 2 (Yellow) Indicator -->
@@ -148,25 +306,74 @@
         android:id="@+id/indicator_2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="@drawable/indicator_bg"
-        android:padding="4dp"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
         android:clipChildren="false"
+        android:clipToPadding="false"
+        android:elevation="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header_controls"
         android:layout_marginTop="8dp">
-        
-        <FrameLayout android:id="@+id/placeholder_2" android:layout_width="60dp" android:layout_height="60dp" android:background="@drawable/placeholder_bg" android:clipChildren="false" />
-        <ImageView android:id="@+id/lori_dp_2" android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/lori_avatar" android:visibility="gone" android:layout_margin="4dp" />
-        <ImageView android:id="@+id/icon_2" android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/circle_indicator" app:tint="@color/ludo_yellow" android:layout_margin="4dp"/>
+
+        <TextView
+            android:id="@+id/tv_name_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Player 3"
+            android:textColor="@color/white"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:maxLength="10"
+            android:singleLine="true"
+            android:background="@drawable/bg_name_pill"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="6dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clipChildren="false">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/avatar_2"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                app:shapeAppearanceOverlay="@style/CircleImage"
+                app:strokeColor="@color/ludo_yellow"
+                app:strokeWidth="2dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_person"
+                android:background="@color/white"
+                android:padding="8dp"
+                android:contentDescription="Player 3 Avatar" />
+
+            <ImageView
+                android:id="@+id/pointer_2"
+                android:layout_width="8dp"
+                android:layout_height="12dp"
+                android:layout_marginHorizontal="4dp"
+                android:src="@drawable/ic_pointer_left"
+                android:visibility="invisible"
+                android:contentDescription="Turn Indicator Pointer" />
+
+            <FrameLayout
+                android:id="@+id/placeholder_2"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:background="@drawable/placeholder_bg"
+                android:clipChildren="false" />
+
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Floating Dice Button -->
     <FrameLayout
         android:id="@+id/dice_button"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:clickable="true"
         android:focusable="true"
         android:background="@drawable/dice_button_bg"

@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isRolling = false;
     private boolean vsAI = true; // Red vs Green, Yellow, Blue AI by default
     private int activePlayerCount = 4;
+    private String[] playerNames = {"Player 1", "Player 2", "Player 3", "Player 4"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +62,13 @@ public class MainActivity extends AppCompatActivity {
         audioEngine = new AudioEngine(this);
 
         android.content.SharedPreferences prefs = getSharedPreferences("LudoSave", android.content.Context.MODE_PRIVATE);
+        audioEngine.setMuted(prefs.getBoolean("is_muted", false));
         
         activePlayerCount = getIntent().getIntExtra(HomeActivity.EXTRA_PLAYER_COUNT, 4);
+        String[] intentNames = getIntent().getStringArrayExtra(HomeActivity.EXTRA_PLAYER_NAMES);
+        if (intentNames != null && intentNames.length == 4) {
+            playerNames = intentNames;
+        }
         String saveKey = "game_state_" + activePlayerCount;
         String savedState = prefs.getString(saveKey, null);
 
@@ -93,9 +99,14 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
 
+            boolean[] playerIsAI = getIntent().getBooleanArrayExtra("player_ai_types");
+            if (playerIsAI == null) {
+                // Fallback: Red is human, others default to AI
+                playerIsAI = new boolean[]{false, true, true, true};
+            }
             engine.setPlayerAI(0, false);
             for (int i = 1; i < 4; i++) {
-                engine.setPlayerAI(i, vsAI && engine.isPlayerActive(i));
+                engine.setPlayerAI(i, playerIsAI[i] && engine.isPlayerActive(i));
             }
         }
 
@@ -113,10 +124,41 @@ public class MainActivity extends AppCompatActivity {
         // Configure game controls
         setupListeners();
 
-        // Show Lori's DP for active AI bots
-        if (engine.isPlayerAI(1)) findViewById(R.id.lori_dp_1).setVisibility(View.VISIBLE);
-        if (engine.isPlayerAI(2)) findViewById(R.id.lori_dp_2).setVisibility(View.VISIBLE);
-        if (engine.isPlayerAI(3)) findViewById(R.id.lori_dp_3).setVisibility(View.VISIBLE);
+        // Initialize indicator visibility and player avatars
+        for (int i = 0; i < 4; i++) {
+            int indicatorId = getResources().getIdentifier("indicator_" + i, "id", getPackageName());
+            View indicatorView = findViewById(indicatorId);
+            if (indicatorView != null) {
+                if (engine.isPlayerActive(i)) {
+                    indicatorView.setVisibility(View.VISIBLE);
+                } else {
+                    indicatorView.setVisibility(View.GONE);
+                }
+            }
+
+            int avatarId = getResources().getIdentifier("avatar_" + i, "id", getPackageName());
+            com.google.android.material.imageview.ShapeableImageView avatarView = findViewById(avatarId);
+            if (avatarView != null) {
+                if (engine.isPlayerAI(i)) {
+                    avatarView.setImageResource(R.drawable.lori_avatar);
+                    avatarView.setImageTintList(null);
+                    avatarView.setPadding(0, 0, 0, 0);
+                    avatarView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                } else {
+                    avatarView.setImageResource(R.drawable.ic_person);
+                    avatarView.setImageTintList(android.content.res.ColorStateList.valueOf(Color.BLACK));
+                    int padding = (int) (8 * getResources().getDisplayMetrics().density);
+                    avatarView.setPadding(padding, padding, padding, padding);
+                    avatarView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                }
+            }
+        }
+
+        // Set player names
+        ((TextView) findViewById(R.id.tv_name_0)).setText(playerNames[0]);
+        ((TextView) findViewById(R.id.tv_name_1)).setText(playerNames[1]);
+        ((TextView) findViewById(R.id.tv_name_2)).setText(playerNames[2]);
+        ((TextView) findViewById(R.id.tv_name_3)).setText(playerNames[3]);
 
         updateUI();
 
@@ -342,9 +384,14 @@ public class MainActivity extends AppCompatActivity {
         // Update dice button background to current player color
         diceButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(color));
 
-        // Refresh dice icon
-        int diceVal = engine.isDiceRolled() ? engine.getDiceValue() : 1;
-        setDiceIcon(diceVal);
+        // Refresh dice icon or show crown if waiting to roll
+        if (engine.isDiceRolled()) {
+            int diceVal = engine.getDiceValue();
+            setDiceIcon(diceVal);
+        } else {
+            diceImage.setImageResource(R.drawable.ic_crown);
+            diceImage.setImageTintList(null);
+        }
 
         // Ensure correct visibility state if updateUI is called during abnormal states
         if (!isRolling) {
@@ -390,6 +437,20 @@ public class MainActivity extends AppCompatActivity {
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT);
             targetPlaceholder.addView(diceButton, params);
+        }
+
+        // Update pointers visibility based on whose turn it is
+        int currentTurn = engine.getCurrentPlayerIndex();
+        for (int i = 0; i < 4; i++) {
+            int pointerId = getResources().getIdentifier("pointer_" + i, "id", getPackageName());
+            View pointerView = findViewById(pointerId);
+            if (pointerView != null) {
+                if (i == currentTurn && engine.isPlayerActive(i)) {
+                    pointerView.setVisibility(View.VISIBLE);
+                } else {
+                    pointerView.setVisibility(View.INVISIBLE);
+                }
+            }
         }
 
         boardView.invalidate();
@@ -451,7 +512,7 @@ public class MainActivity extends AppCompatActivity {
                         .setSpeedBetween(0f, 30f)
                         .position(new Position.Relative(x, y))
                         .build());
-        Toast.makeText(this, LudoGameEngine.PlayerColor.values()[playerIdx].name + " Finished!", Toast.LENGTH_SHORT)
+        Toast.makeText(this, playerNames[playerIdx] + " Finished!", Toast.LENGTH_SHORT)
                 .show();
     }
 
@@ -481,13 +542,11 @@ public class MainActivity extends AppCompatActivity {
 
         String[] places = { "1st", "2nd", "3rd", "4th" };
         for (int i = 0; i < rankings.size(); i++) {
-            LudoGameEngine.PlayerColor pc = LudoGameEngine.PlayerColor.values()[rankings.get(i)];
-            sb.append(places[i]).append(" Place: ").append(pc.name).append("\n");
+            sb.append(places[i]).append(" Place: ").append(playerNames[rankings.get(i)]).append("\n");
         }
 
         if (lastPlayer != -1) {
-            LudoGameEngine.PlayerColor pc = LudoGameEngine.PlayerColor.values()[lastPlayer];
-            sb.append(places[rankings.size()]).append(" Place: ").append(pc.name).append("\n");
+            sb.append(places[rankings.size()]).append(" Place: ").append(playerNames[lastPlayer]).append("\n");
         }
 
         new AlertDialog.Builder(this)

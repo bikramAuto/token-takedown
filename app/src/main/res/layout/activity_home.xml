@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dark_bg">
+    android:background="@drawable/bg_gradient_purple"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
-    <ScrollView
+    <!-- Main Content Container (Fits exactly on one screen without scrolling) -->
+    <LinearLayout
+        android:id="@+id/main_content_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center"
-        android:padding="32dp">
+        android:gravity="center_horizontal"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="28dp"
+        android:paddingBottom="16dp"
+        android:clipChildren="false"
+        android:clipToPadding="false">
 
         <!-- Logo / Title Area -->
         <LinearLayout
@@ -23,25 +27,25 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:layout_marginBottom="48dp">
+            android:layout_marginBottom="16dp">
 
-            <!-- Dice icon cluster -->
+            <!-- Dice icon cluster with glow -->
             <FrameLayout
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:layout_marginBottom="24dp">
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_marginBottom="8dp">
 
                 <View
                     android:id="@+id/logo_glow"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
+                    android:layout_width="90dp"
+                    android:layout_height="90dp"
                     android:layout_gravity="center"
                     android:background="@drawable/logo_glow_bg" />
 
                 <ImageView
                     android:id="@+id/logo_dice"
-                    android:layout_width="72dp"
-                    android:layout_height="72dp"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
                     android:layout_gravity="center"
                     android:contentDescription="Ludo Logo" />
             </FrameLayout>
@@ -51,266 +55,550 @@
                 android:layout_height="wrap_content"
                 android:text="LUDO"
                 android:textColor="@color/accent_gold"
-                android:textSize="48sp"
+                android:textSize="36sp"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-black"
-                android:letterSpacing="0.15" />
+                android:letterSpacing="0.15"
+                android:shadowColor="@color/accent_gold"
+                android:shadowRadius="15"
+                android:shadowDx="0"
+                android:shadowDy="0" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="BOARD PLAY"
-                android:textColor="@color/text_secondary"
-                android:textSize="16sp"
+                android:textColor="@color/magenta_accent"
+                android:textSize="11sp"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-medium"
-                android:letterSpacing="0.4" />
+                android:letterSpacing="0.5" />
         </LinearLayout>
 
-        <!-- Player Count Selection -->
+        <!-- Select Players Section -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Select Players"
-            android:textColor="@color/text_primary"
-            android:textSize="18sp"
+            android:text="SELECT PLAYERS"
+            android:textColor="@color/accent_gold"
+            android:textSize="12sp"
             android:textStyle="bold"
-            android:layout_marginBottom="20dp" />
+            android:letterSpacing="0.2"
+            android:layout_gravity="start"
+            android:layout_marginBottom="8dp" />
 
+        <!-- 3 Cards Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="16dp">
+
+            <!-- 2 Players Card -->
+            <LinearLayout
+                android:id="@+id/card_2p"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bg_player_chip"
+                android:clickable="true"
+                android:focusable="true">
+                
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2"
+                    android:textColor="@color/accent_gold"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-black" />
+                    
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Players"
+                    android:textColor="@color/text_primary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- 3 Players Card -->
+            <LinearLayout
+                android:id="@+id/card_3p"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="4dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bg_player_chip"
+                android:clickable="true"
+                android:focusable="true">
+                
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3"
+                    android:textColor="@color/accent_gold"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-black" />
+                    
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Players"
+                    android:textColor="@color/text_primary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- 4 Players Card -->
+            <LinearLayout
+                android:id="@+id/card_4p"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bg_player_chip_selected"
+                android:clickable="true"
+                android:focusable="true">
+                
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="4"
+                    android:textColor="@color/accent_gold"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-black" />
+                    
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Players"
+                    android:textColor="@color/text_primary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Player Names Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="40dp">
+            android:orientation="vertical"
+            android:background="@drawable/bg_card_glass"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
 
-            <!-- 2 Players -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_2_players"
-                android:layout_width="0dp"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:clickable="true"
-                android:focusable="true"
-                app:cardCornerRadius="20dp"
-                app:cardBackgroundColor="@color/dark_surface"
-                app:strokeColor="@color/board_grid"
-                app:strokeWidth="1.5dp"
-                app:cardElevation="4dp">
+                android:text="PLAYER NAMES"
+                android:textColor="@color/accent_gold"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.2"
+                android:layout_marginBottom="12dp" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:paddingVertical="20dp"
-                    android:paddingHorizontal="8dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="2"
-                        android:textColor="@color/ludo_red"
-                        android:textSize="36sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Players"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp" />
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="8dp">
-                        <View android:layout_width="10dp" android:layout_height="10dp" android:background="@drawable/circle_indicator" android:backgroundTint="@color/ludo_red" android:layout_marginEnd="4dp"/>
-                        <View android:layout_width="10dp" android:layout_height="10dp" android:background="@drawable/circle_indicator" android:backgroundTint="@color/ludo_yellow"/>
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- 3 Players -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_3_players"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="8dp"
-                android:clickable="true"
-                android:focusable="true"
-                app:cardCornerRadius="20dp"
-                app:cardBackgroundColor="@color/dark_surface"
-                app:strokeColor="@color/board_grid"
-                app:strokeWidth="1.5dp"
-                app:cardElevation="4dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:paddingVertical="20dp"
-                    android:paddingHorizontal="8dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="3"
-                        android:textColor="@color/ludo_green"
-                        android:textSize="36sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Players"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp" />
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="8dp">
-                        <View android:layout_width="10dp" android:layout_height="10dp" android:background="@drawable/circle_indicator" android:backgroundTint="@color/ludo_red" android:layout_marginEnd="4dp"/>
-                        <View android:layout_width="10dp" android:layout_height="10dp" android:background="@drawable/circle_indicator" android:backgroundTint="@color/ludo_green" android:layout_marginEnd="4dp"/>
-                        <View android:layout_width="10dp" android:layout_height="10dp" android:background="@drawable/circle_indicator" android:backgroundTint="@color/ludo_yellow"/>
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- 4 Players -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_4_players"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:clickable="true"
-                android:focusable="true"
-                app:cardCornerRadius="20dp"
-                app:cardBackgroundColor="@color/dark_surface"
-                app:strokeColor="@color/accent_gold"
-                app:strokeWidth="2dp"
-                app:cardElevation="6dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:paddingVertical="20dp"
-                    android:paddingHorizontal="8dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="4"
-                        android:textColor="@color/accent_gold"
-                        android:textSize="36sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Players"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp" />
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="8dp">
-                        <View android:layout_width="10dp" android:layout_height="10dp" android:background="@drawable/circle_indicator" android:backgroundTint="@color/ludo_red" android:layout_marginEnd="4dp"/>
-                        <View android:layout_width="10dp" android:layout_height="10dp" android:background="@drawable/circle_indicator" android:backgroundTint="@color/ludo_green" android:layout_marginEnd="4dp"/>
-                        <View android:layout_width="10dp" android:layout_height="10dp" android:background="@drawable/circle_indicator" android:backgroundTint="@color/ludo_yellow" android:layout_marginEnd="4dp"/>
-                        <View android:layout_width="10dp" android:layout_height="10dp" android:background="@drawable/circle_indicator" android:backgroundTint="@color/ludo_blue"/>
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-        </LinearLayout>
-
-        <!-- Game Mode Toggle -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            app:cardCornerRadius="16dp"
-            app:cardBackgroundColor="@color/dark_surface_variant"
-            app:strokeColor="@color/board_grid"
-            app:strokeWidth="1dp">
-
+            <!-- Player 1 (Red - Always Human) -->
             <LinearLayout
+                android:id="@+id/row_player_1"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="44dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:padding="16dp">
+                android:layout_marginBottom="8dp">
 
-                <TextView
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/avatar_1"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="8dp"
+                    app:shapeAppearanceOverlay="@style/CircleImage"
+                    app:strokeColor="@color/ludo_red"
+                    app:strokeWidth="2dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_person"
+                    android:background="@color/white"
+                    android:padding="5dp"
+                    android:contentDescription="Player 1 Avatar" />
+
+                <EditText
+                    android:id="@+id/input_name_1"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="Play with Lori"
+                    android:hint="Player 1"
+                    android:text="Player 1"
                     android:textColor="@color/text_primary"
-                    android:textSize="15sp" />
+                    android:textColorHint="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:background="@drawable/bg_name_input"
+                    android:paddingHorizontal="12dp"
+                    android:singleLine="true"
+                    android:inputType="textPersonName"
+                    android:imeOptions="actionNext"
+                    android:maxLength="12" />
 
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/switch_ai"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    app:thumbTint="@color/accent_gold"
-                    app:trackTint="@color/board_grid" />
+                <!-- Empty space placeholder to align layout with rows having AI toggles -->
+                <View
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="8dp" />
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+
+            <!-- Player 2 (Green) -->
+            <LinearLayout
+                android:id="@+id/row_player_2"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/avatar_2"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="8dp"
+                    app:shapeAppearanceOverlay="@style/CircleImage"
+                    app:strokeColor="@color/ludo_green"
+                    app:strokeWidth="2dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_person"
+                    android:background="@color/white"
+                    android:padding="5dp"
+                    android:contentDescription="Player 2 Avatar" />
+
+                <EditText
+                    android:id="@+id/input_name_2"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:hint="Player 2"
+                    android:text="Player 2"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:background="@drawable/bg_name_input"
+                    android:paddingHorizontal="12dp"
+                    android:singleLine="true"
+                    android:inputType="textPersonName"
+                    android:imeOptions="actionNext"
+                    android:maxLength="12" />
+
+                <ImageButton
+                    android:id="@+id/btn_toggle_ai_2"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="8dp"
+                    android:padding="7dp"
+                    android:scaleType="fitCenter"
+                    android:background="@drawable/bg_menu_circle_button"
+                    android:src="@drawable/ic_person"
+                    android:contentDescription="Toggle Human/AI" />
+            </LinearLayout>
+
+            <!-- Player 3 (Yellow) -->
+            <LinearLayout
+                android:id="@+id/row_player_3"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/avatar_3"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="8dp"
+                    app:shapeAppearanceOverlay="@style/CircleImage"
+                    app:strokeColor="@color/ludo_yellow"
+                    app:strokeWidth="2dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_person"
+                    android:background="@color/white"
+                    android:padding="5dp"
+                    android:contentDescription="Player 3 Avatar" />
+
+                <EditText
+                    android:id="@+id/input_name_3"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:hint="Player 3"
+                    android:text="Player 3"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:background="@drawable/bg_name_input"
+                    android:paddingHorizontal="12dp"
+                    android:singleLine="true"
+                    android:inputType="textPersonName"
+                    android:imeOptions="actionNext"
+                    android:maxLength="12" />
+
+                <ImageButton
+                    android:id="@+id/btn_toggle_ai_3"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="8dp"
+                    android:padding="7dp"
+                    android:scaleType="fitCenter"
+                    android:background="@drawable/bg_menu_circle_button"
+                    android:src="@drawable/ic_person"
+                    android:contentDescription="Toggle Human/AI" />
+            </LinearLayout>
+
+            <!-- Player 4 (Blue) -->
+            <LinearLayout
+                android:id="@+id/row_player_4"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/avatar_4"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="8dp"
+                    app:shapeAppearanceOverlay="@style/CircleImage"
+                    app:strokeColor="@color/ludo_blue"
+                    app:strokeWidth="2dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_person"
+                    android:background="@color/white"
+                    android:padding="5dp"
+                    android:contentDescription="Player 4 Avatar" />
+
+                <EditText
+                    android:id="@+id/input_name_4"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:hint="Player 4"
+                    android:text="Player 4"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:background="@drawable/bg_name_input"
+                    android:paddingHorizontal="12dp"
+                    android:singleLine="true"
+                    android:inputType="textPersonName"
+                    android:imeOptions="actionDone"
+                    android:maxLength="12" />
+
+                <ImageButton
+                    android:id="@+id/btn_toggle_ai_4"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="8dp"
+                    android:padding="7dp"
+                    android:scaleType="fitCenter"
+                    android:background="@drawable/bg_menu_circle_button"
+                    android:src="@drawable/ic_person"
+                    android:contentDescription="Toggle Human/AI" />
+            </LinearLayout>
+        </LinearLayout>
 
         <!-- Start Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_start"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:text="START GAME"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:letterSpacing="0.1"
-            app:cornerRadius="20dp"
-            app:backgroundTint="@color/accent_gold"
-            android:textColor="@color/black"
-            app:icon="@android:drawable/ic_media_play"
-            app:iconGravity="textStart"
-            app:iconTint="@color/black" />
+            android:layout_height="52dp"
+            android:layout_marginBottom="12dp">
 
-        <!-- Old buttons removed, moved to popup menu -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_start"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="START GAME"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1"
+                app:cornerRadius="26dp"
+                app:backgroundTint="@color/accent_gold"
+                android:textColor="@color/black"
+                app:icon="@android:drawable/ic_media_play"
+                app:iconGravity="textStart"
+                app:iconTint="@color/black"
+                android:elevation="6dp" />
+        </FrameLayout>
 
         <!-- Version tag -->
         <TextView
             android:id="@+id/tv_version"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="v3.3.1 • Made with ♥"
-            android:textColor="@color/board_grid"
-            android:textSize="12sp" />
+            android:text="v2.3.2 • Made with ♥"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp" />
+
+        <!-- Bottom spacing for settings button overlay -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="64dp" />
 
     </LinearLayout>
-    </ScrollView>
 
-    <!-- Top-Left Overflow Menu -->
-    <ImageButton
-        android:id="@+id/btn_menu"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_margin="16dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_more_vert"
-        android:contentDescription="Menu"
-        android:layout_gravity="top|start" />
+    <!-- Dimming Overlay (Fades home screen content when settings are opened) -->
+    <View
+        android:id="@+id/dim_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#AA000000"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <!-- Bottom Settings Radial Menu Overlay (Positioned on top of dim overlay) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/settings_menu_container"
+        android:layout_width="320dp"
+        android:layout_height="220dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="8dp"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <!-- Invisible Center Anchor for circular constraint -->
+        <View
+            android:id="@+id/menu_center_anchor"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@id/btn_settings_circle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="55dp" />
+
+        <!-- Rule Pill Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_menu_rule"
+            android:layout_width="wrap_content"
+            android:layout_height="38dp"
+            android:text="Rule"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:paddingHorizontal="24dp"
+            android:background="@drawable/bg_start_button"
+            app:backgroundTint="@null"
+            android:fontFamily="sans-serif-black"
+            android:letterSpacing="0.05"
+            android:elevation="6dp"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="@id/menu_center_anchor"
+            app:layout_constraintBottom_toBottomOf="@id/menu_center_anchor"
+            app:layout_constraintStart_toStartOf="@id/menu_center_anchor"
+            app:layout_constraintEnd_toEndOf="@id/menu_center_anchor" />
+
+        <!-- Settings Gear Button (Always Visible) -->
+        <ImageButton
+            android:id="@+id/btn_settings_circle"
+            style="@style/CircleIconButton"
+            android:src="@drawable/ic_settings"
+            android:contentDescription="Settings"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- 1. Thumbs Up (Angle 260 - Left-Bottom) -->
+        <ImageButton
+            android:id="@+id/btn_menu_thumbs_up"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="10dp"
+            android:scaleType="fitCenter"
+            android:background="@drawable/bg_menu_circle_button"
+            android:elevation="6dp"
+            android:src="@drawable/ic_thumbs_up"
+            android:tint="@color/ludo_green"
+            android:visibility="gone"
+            app:layout_constraintCircle="@id/menu_center_anchor"
+            app:layout_constraintCircleRadius="95dp"
+            app:layout_constraintCircleAngle="260"
+            tools:ignore="MissingConstraints" />
+
+        <!-- 2. Envelope (Angle 310 - Left-Top) -->
+        <ImageButton
+            android:id="@+id/btn_menu_envelope"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="10dp"
+            android:scaleType="fitCenter"
+            android:background="@drawable/bg_menu_circle_button"
+            android:elevation="6dp"
+            android:src="@drawable/ic_envelope"
+            android:tint="@color/ludo_green"
+            android:visibility="gone"
+            app:layout_constraintCircle="@id/menu_center_anchor"
+            app:layout_constraintCircleRadius="95dp"
+            app:layout_constraintCircleAngle="310"
+            tools:ignore="MissingConstraints" />
+
+        <!-- 3. Gamepad (Angle 0 - Top-Center) -->
+        <ImageButton
+            android:id="@+id/btn_menu_gamepad"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="10dp"
+            android:scaleType="fitCenter"
+            android:background="@drawable/bg_menu_circle_button"
+            android:elevation="6dp"
+            android:src="@drawable/ic_gamepad"
+            android:tint="@color/ludo_green"
+            android:visibility="gone"
+            app:layout_constraintCircle="@id/menu_center_anchor"
+            app:layout_constraintCircleRadius="95dp"
+            app:layout_constraintCircleAngle="0"
+            tools:ignore="MissingConstraints" />
+
+        <!-- 4. Music Note (Angle 50 - Right-Top) -->
+        <ImageButton
+            android:id="@+id/btn_menu_music"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="10dp"
+            android:scaleType="fitCenter"
+            android:background="@drawable/bg_menu_circle_button"
+            android:elevation="6dp"
+            android:src="@drawable/ic_music"
+            android:tint="@color/ludo_green"
+            android:visibility="gone"
+            app:layout_constraintCircle="@id/menu_center_anchor"
+            app:layout_constraintCircleRadius="95dp"
+            app:layout_constraintCircleAngle="50"
+            tools:ignore="MissingConstraints" />
+
+        <!-- 5. Speaker (Angle 100 - Right-Bottom) -->
+        <ImageButton
+            android:id="@+id/btn_menu_speaker"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="10dp"
+            android:scaleType="fitCenter"
+            android:background="@drawable/bg_menu_circle_button"
+            android:elevation="6dp"
+            android:src="@drawable/ic_sound"
+            android:tint="@color/ludo_green"
+            android:visibility="gone"
+            app:layout_constraintCircle="@id/menu_center_anchor"
+            app:layout_constraintCircleRadius="95dp"
+            app:layout_constraintCircleAngle="100"
+            tools:ignore="MissingConstraints" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>
