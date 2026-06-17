@@ -119,6 +119,7 @@ public class LudoGameEngine {
     private int diceValue = 1;
     private boolean isDiceRolled = false;
     private int consecutiveSixes = 0;
+    private boolean isTeamMode = false;
     
     // tokenPositions[player_id][token_id] = 0..57
     private final int[][] tokenPositions = new int[4][4];
@@ -271,6 +272,57 @@ public class LudoGameEngine {
         isPlayerActive[playerIdx] = active;
     }
 
+    public boolean isTeamMode() {
+        return isTeamMode;
+    }
+
+    public void setTeamMode(boolean teamMode) {
+        this.isTeamMode = teamMode;
+    }
+
+    public int getPartnerIndex(int playerIdx) {
+        if (!isTeamMode) return -1;
+        switch (playerIdx) {
+            case 0: return 2; // Red ↔ Yellow
+            case 1: return 3; // Green ↔ Blue
+            case 2: return 0;
+            case 3: return 1;
+            default: return -1;
+        }
+    }
+
+    public int getMovingPlayerIndex() {
+        if (isTeamMode && checkWinner(currentPlayerIndex)) {
+            int partner = getPartnerIndex(currentPlayerIndex);
+            if (partner != -1 && !checkWinner(partner)) {
+                return partner;
+            }
+        }
+        return currentPlayerIndex;
+    }
+
+    public boolean isCoordinateBlockedForPlayer(Point targetPoint, int playerIdx) {
+        if (!isTeamMode) return false;
+        int myTeam = playerIdx % 2;
+        int enemyTeam = 1 - myTeam;
+
+        int enemyTokenCount = 0;
+        for (int p = 0; p < 4; p++) {
+            if (p % 2 == enemyTeam && isPlayerActive[p]) {
+                for (int t = 0; t < 4; t++) {
+                    int pos = tokenPositions[p][t];
+                    if (pos >= 1 && pos <= 51) {
+                        Point coord = paths[p][pos];
+                        if (coord != null && coord.x == targetPoint.x && coord.y == targetPoint.y) {
+                            enemyTokenCount++;
+                        }
+                    }
+                }
+            }
+        }
+        return enemyTokenCount >= 2;
+    }
+
     public int getActivePlayerCount() {
         int count = 0;
         for (boolean active : isPlayerActive) {
@@ -290,9 +342,15 @@ public class LudoGameEngine {
     }
 
     public boolean isGameOver() {
-        int activeCount = getActivePlayerCount();
-        if (activeCount <= 1) return true;
-        return finishedRankings.size() >= activeCount - 1;
+        if (isTeamMode) {
+            boolean team1Finished = finishedRankings.contains(0) && finishedRankings.contains(2);
+            boolean team2Finished = finishedRankings.contains(1) && finishedRankings.contains(3);
+            return team1Finished || team2Finished;
+        } else {
+            int activeCount = getActivePlayerCount();
+            if (activeCount <= 1) return true;
+            return finishedRankings.size() >= activeCount - 1;
+        }
     }
 
     // Rolls the dice and updates states
@@ -345,17 +403,43 @@ public class LudoGameEngine {
         List<Integer> validTokens = new ArrayList<>();
         if (!isDiceRolled) return validTokens;
 
+        int targetPlayerIdx = playerIdx;
+        if (isTeamMode && checkWinner(playerIdx)) {
+            int partner = getPartnerIndex(playerIdx);
+            if (partner != -1 && !checkWinner(partner)) {
+                targetPlayerIdx = partner;
+            } else {
+                return validTokens;
+            }
+        }
+
         for (int t = 0; t < 4; t++) {
-            int pos = tokenPositions[playerIdx][t];
+            int pos = tokenPositions[targetPlayerIdx][t];
             if (pos == POSITION_YARD) {
                 // To get out of yard, you must roll a 6
                 if (diceValue == 6) {
-                    validTokens.add(t);
+                    Point startCoord = paths[targetPlayerIdx][1];
+                    if (startCoord != null && !isCoordinateBlockedForPlayer(startCoord, targetPlayerIdx)) {
+                        validTokens.add(t);
+                    }
                 }
             } else if (pos < POSITION_GOAL) {
                 // Cannot exceed final goal position
                 if (pos + diceValue <= POSITION_GOAL) {
-                    validTokens.add(t);
+                    boolean blocked = false;
+                    for (int step = 1; step <= diceValue; step++) {
+                        int checkPos = pos + step;
+                        if (checkPos >= 1 && checkPos <= 51) {
+                            Point stepCoord = paths[targetPlayerIdx][checkPos];
+                            if (stepCoord != null && isCoordinateBlockedForPlayer(stepCoord, targetPlayerIdx)) {
+                                blocked = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!blocked) {
+                        validTokens.add(t);
+                    }
                 }
             }
         }
@@ -406,6 +490,7 @@ public class LudoGameEngine {
                 // Check other players' tokens on the same coordinate
                 for (int p = 0; p < 4; p++) {
                     if (p == playerIdx || !isPlayerActive[p]) continue;
+                    if (isTeamMode && (p % 2 == playerIdx % 2)) continue; // cannot capture teammate
                     for (int t = 0; t < 4; t++) {
                         if (tokenPositions[p][t] >= 1 && tokenPositions[p][t] <= 51) {
                             Point oppCoord = paths[p][tokenPositions[p][t]];
@@ -431,12 +516,23 @@ public class LudoGameEngine {
         return new MoveResult(capture, safe, reachedGoal, bonus);
     }
 
+    private boolean isPlayerFinishedAndPartnerFinished(int p) {
+        if (!finishedRankings.contains(p)) {
+            return false;
+        }
+        if (isTeamMode) {
+            int partner = getPartnerIndex(p);
+            return partner == -1 || finishedRankings.contains(partner);
+        }
+        return true;
+    }
+
     // Increment turn to next active player
     public void nextTurn() {
         isDiceRolled = false;
         do {
             currentPlayerIndex = (currentPlayerIndex + 1) % 4;
-        } while (!isPlayerActive[currentPlayerIndex] || finishedRankings.contains(currentPlayerIndex));
+        } while (!isPlayerActive[currentPlayerIndex] || isPlayerFinishedAndPartnerFinished(currentPlayerIndex));
     }
 
     // Checks if the target player has won (all 4 tokens in goal)
@@ -470,6 +566,8 @@ public class LudoGameEngine {
     public String exportStateToJson() {
         try {
             JSONObject state = new JSONObject();
+            
+            state.put("isTeamMode", isTeamMode);
             
             JSONArray activeArray = new JSONArray();
             JSONArray aiArray = new JSONArray();
@@ -512,6 +610,8 @@ public class LudoGameEngine {
         if (jsonStr == null || jsonStr.trim().isEmpty()) return false;
         try {
             JSONObject state = new JSONObject(jsonStr);
+            
+            isTeamMode = state.optBoolean("isTeamMode", false);
             
             JSONArray activeArray = state.getJSONArray("isPlayerActive");
             JSONArray aiArray = state.getJSONArray("isPlayerAI");

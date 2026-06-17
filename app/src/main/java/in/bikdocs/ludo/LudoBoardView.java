@@ -230,6 +230,9 @@ public class LudoBoardView extends View {
         // Draw Stars / Safe cells
         drawStars(canvas);
 
+        // Draw Team Blocks (shield overlays)
+        drawTeamBlocks(canvas);
+
         // Draw active Tokens
         drawTokens(canvas);
     }
@@ -444,12 +447,11 @@ public class LudoBoardView extends View {
             LudoGameEngine.Point coord = getPointForPosition(p, t, pos);
 
             // Offset overlaps
-            List<Integer> overlaps = getOverlappingTokens(coord, p, t);
-            if (!overlaps.isEmpty()) {
-                int total = overlaps.size() + 1;
-                // Current token gets index 0 in the offset ring
-                float angle = (float) (2 * Math.PI * 0 / total);
-                float offsetR = cellSize * 0.25f;
+            int total = getTokenOverlapCount(coord);
+            if (total > 1) {
+                int myIndex = getTokenOverlapIndex(coord, p, t);
+                float angle = (float) (2 * Math.PI * myIndex / total);
+                float offsetR = cellSize * 0.22f;
                 cx += Math.cos(angle) * offsetR;
                 cy += Math.sin(angle) * offsetR;
             }
@@ -494,8 +496,25 @@ public class LudoBoardView extends View {
         canvas.drawCircle(cx, cy, r * 0.15f, fillPaint);
     }
 
-    private List<Integer> getOverlappingTokens(LudoGameEngine.Point target, int pIdx, int tIdx) {
-        List<Integer> list = new ArrayList<>();
+    private int getTokenOverlapCount(LudoGameEngine.Point target) {
+        int count = 0;
+        int[][] positions = engine.getTokenPositions();
+        for (int p = 0; p < 4; p++) {
+            if (!engine.isPlayerActive(p)) continue;
+            for (int t = 0; t < 4; t++) {
+                if (positions[p][t] == LudoGameEngine.POSITION_YARD) continue;
+                LudoGameEngine.Point c = getPointForPosition(p, t, positions[p][t]);
+                if (c != null && c.x == target.x && c.y == target.y) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    private int getTokenOverlapIndex(LudoGameEngine.Point target, int pIdx, int tIdx) {
+        int index = 0;
+        int myId = pIdx * 4 + tIdx;
         int[][] positions = engine.getTokenPositions();
         for (int p = 0; p < 4; p++) {
             if (!engine.isPlayerActive(p)) continue;
@@ -503,12 +522,15 @@ public class LudoBoardView extends View {
                 if (p == pIdx && t == tIdx) continue;
                 if (positions[p][t] == LudoGameEngine.POSITION_YARD) continue;
                 LudoGameEngine.Point c = getPointForPosition(p, t, positions[p][t]);
-                if (c.x == target.x && c.y == target.y) {
-                    list.add(t);
+                if (c != null && c.x == target.x && c.y == target.y) {
+                    int otherId = p * 4 + t;
+                    if (otherId < myId) {
+                        index++;
+                    }
                 }
             }
         }
-        return list;
+        return index;
     }
 
     private float getCellCenterX(int x) {
@@ -550,7 +572,7 @@ public class LudoBoardView extends View {
             float ty = event.getY();
 
             // Find clicked token
-            int curPlayerIdx = engine.getCurrentPlayerIndex();
+            int curPlayerIdx = engine.getMovingPlayerIndex();
             int[][] positions = engine.getTokenPositions();
 
             for (int t : validTokens) {
@@ -588,6 +610,64 @@ public class LudoBoardView extends View {
         Color.colorToHSV(color, hsv);
         hsv[2] *= 0.65f; // reduce brightness
         return Color.HSVToColor(hsv);
+    }
+
+    private void drawTeamBlocks(Canvas canvas) {
+        if (engine == null || !engine.isTeamMode()) return;
+
+        LudoGameEngine.Point[] track = engine.getMainTrack();
+        if (track == null) return;
+        
+        int[][] positions = engine.getTokenPositions();
+
+        for (int i = 0; i < 52; i++) {
+            LudoGameEngine.Point coord = track[i];
+            if (coord == null) continue;
+            
+            int team1Count = 0;
+            int team2Count = 0;
+            
+            for (int p = 0; p < 4; p++) {
+                if (!engine.isPlayerActive(p)) continue;
+                for (int t = 0; t < 4; t++) {
+                    int pos = positions[p][t];
+                    if (pos >= 1 && pos <= 51) {
+                        LudoGameEngine.Point c = engine.getCoordinateForPosition(p, t, pos);
+                        if (c != null && c.x == coord.x && c.y == coord.y) {
+                            if (p % 2 == 0) team1Count++;
+                            else team2Count++;
+                        }
+                    }
+                }
+            }
+
+            if (team1Count >= 2) {
+                drawBlockShield(canvas, coord.x, coord.y, Color.parseColor("#FF4B4B")); // Red Team block
+            } else if (team2Count >= 2) {
+                drawBlockShield(canvas, coord.x, coord.y, Color.parseColor("#2ECC71")); // Green Team block
+            }
+        }
+    }
+
+    private void drawBlockShield(Canvas canvas, int cx, int cy, int teamColor) {
+        float x = getCellCenterX(cx);
+        float y = getCellCenterY(cy);
+        float r = cellSize * 0.48f;
+
+        Paint shieldPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        shieldPaint.setStyle(Paint.Style.STROKE);
+        shieldPaint.setStrokeWidth(4f);
+        shieldPaint.setColor(teamColor);
+        shieldPaint.setAlpha((int) (120 + pulseValue * 100));
+        
+        canvas.drawCircle(x, y, r, shieldPaint);
+        shieldPaint.setStrokeWidth(2f);
+        canvas.drawCircle(x, y, r - 6f, shieldPaint);
+
+        shieldPaint.setStyle(Paint.Style.FILL);
+        shieldPaint.setColor(teamColor);
+        shieldPaint.setAlpha((int) (30 + pulseValue * 20));
+        canvas.drawCircle(x, y, r, shieldPaint);
     }
 
     @Override

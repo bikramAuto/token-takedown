@@ -65,17 +65,20 @@ public class MainActivity extends AppCompatActivity {
         audioEngine.setMuted(prefs.getBoolean("is_muted", false));
         
         activePlayerCount = getIntent().getIntExtra(HomeActivity.EXTRA_PLAYER_COUNT, 4);
+        boolean isTeamMode = getIntent().getBooleanExtra("is_team_mode", false);
         String[] intentNames = getIntent().getStringArrayExtra(HomeActivity.EXTRA_PLAYER_NAMES);
         if (intentNames != null && intentNames.length == 4) {
             playerNames = intentNames;
         }
-        String saveKey = "game_state_" + activePlayerCount;
+        String saveKey = isTeamMode ? "game_state_team" : "game_state_" + activePlayerCount;
         String savedState = prefs.getString(saveKey, null);
 
         if (savedState != null && engine.importStateFromJson(savedState)) {
             // Successfully resumed saved state, skip Intent configs
+            isTeamMode = engine.isTeamMode();
         } else {
             // No saved state or invalid, read configuration from HomeActivity for new game
+            engine.setTeamMode(isTeamMode);
             vsAI = getIntent().getBooleanExtra(HomeActivity.EXTRA_VS_AI, true);
 
             switch (activePlayerCount) {
@@ -155,10 +158,27 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Set player names
-        ((TextView) findViewById(R.id.tv_name_0)).setText(playerNames[0]);
-        ((TextView) findViewById(R.id.tv_name_1)).setText(playerNames[1]);
-        ((TextView) findViewById(R.id.tv_name_2)).setText(playerNames[2]);
-        ((TextView) findViewById(R.id.tv_name_3)).setText(playerNames[3]);
+        TextView tv0 = findViewById(R.id.tv_name_0);
+        TextView tv1 = findViewById(R.id.tv_name_1);
+        TextView tv2 = findViewById(R.id.tv_name_2);
+        TextView tv3 = findViewById(R.id.tv_name_3);
+
+        if (engine.isTeamMode()) {
+            tv0.setFilters(new android.text.InputFilter[0]);
+            tv1.setFilters(new android.text.InputFilter[0]);
+            tv2.setFilters(new android.text.InputFilter[0]);
+            tv3.setFilters(new android.text.InputFilter[0]);
+            
+            tv0.setText(playerNames[0] + " (T-RY)");
+            tv1.setText(playerNames[1] + " (T-GB)");
+            tv2.setText(playerNames[2] + " (T-RY)");
+            tv3.setText(playerNames[3] + " (T-GB)");
+        } else {
+            tv0.setText(playerNames[0]);
+            tv1.setText(playerNames[1]);
+            tv2.setText(playerNames[2]);
+            tv3.setText(playerNames[3]);
+        }
 
         updateUI();
 
@@ -187,9 +207,10 @@ public class MainActivity extends AppCompatActivity {
             // Player clicks a token to move
             if (isRolling || !engine.isDiceRolled())
                 return;
-            if (playerIdx != engine.getCurrentPlayerIndex())
+            int movingPlayerIdx = engine.getMovingPlayerIndex();
+            if (playerIdx != movingPlayerIdx)
                 return;
-            if (engine.isPlayerAI(playerIdx))
+            if (engine.isPlayerAI(movingPlayerIdx))
                 return; // bot should choose
 
             moveToken(playerIdx, tokenIdx);
@@ -235,8 +256,9 @@ public class MainActivity extends AppCompatActivity {
                 }, 1200);
             } else if (validMoves.size() == 1) {
                 // Auto move if there is only 1 option
+                int movingPlayerIdx = engine.getMovingPlayerIndex();
                 uiHandler.postDelayed(() -> {
-                    moveToken(currentIdx, validMoves.get(0));
+                    moveToken(movingPlayerIdx, validMoves.get(0));
                 }, 600); // Slight delay so the user sees the dice result before token moves
             }
         });
@@ -279,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (engine.isGameOver()) {
-                    String finalSaveKey = "game_state_" + activePlayerCount;
+                    String finalSaveKey = engine.isTeamMode() ? "game_state_team" : "game_state_" + activePlayerCount;
                     getSharedPreferences("LudoSave", android.content.Context.MODE_PRIVATE).edit().remove(finalSaveKey).apply();
                     PlayerStatsLogger.incrementGamesPlayed(this);
                     showMediumCelebration();
@@ -337,6 +359,7 @@ public class MainActivity extends AppCompatActivity {
                 // AI logic here...
                 int currentIdx = engine.getCurrentPlayerIndex();
                 List<Integer> validMoves = engine.getValidMoves(currentIdx);
+                int movingPlayerIdx = engine.getMovingPlayerIndex();
 
                 if (validMoves.isEmpty()) {
                     engine.nextTurn();
@@ -344,8 +367,8 @@ public class MainActivity extends AppCompatActivity {
                     checkBotTurn();
                 } else {
                     // Let Bot select best move
-                    int selectedToken = LudoBot.selectBestMove(engine, currentIdx, validMoves);
-                    uiHandler.postDelayed(() -> moveToken(currentIdx, selectedToken), 1000);
+                    int selectedToken = LudoBot.selectBestMove(engine, movingPlayerIdx, validMoves);
+                    uiHandler.postDelayed(() -> moveToken(movingPlayerIdx, selectedToken), 1000);
                 }
             }
         });
@@ -477,7 +500,7 @@ public class MainActivity extends AppCompatActivity {
                 .setMessage("Are you sure you want to restart Ludo Board Play?")
                 .setPositiveButton("Yes", (dialog, which) -> {
                     engine.resetGame();
-                    String resetSaveKey = "game_state_" + activePlayerCount;
+                    String resetSaveKey = engine.isTeamMode() ? "game_state_team" : "game_state_" + activePlayerCount;
                     getSharedPreferences("LudoSave", android.content.Context.MODE_PRIVATE).edit().remove(resetSaveKey).apply();
                     updateUI();
                     checkBotTurn();
@@ -529,6 +552,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showLeaderboardDialog() {
+        if (engine.isTeamMode()) {
+            List<Integer> rankings = engine.getFinishedRankings();
+            boolean team1Finished = rankings.contains(0) && rankings.contains(2);
+            String winningTeam;
+            String partner1;
+            String partner2;
+            if (team1Finished) {
+                winningTeam = "Team Red-Yellow";
+                partner1 = playerNames[0];
+                partner2 = playerNames[2];
+            } else {
+                winningTeam = "Team Green-Blue";
+                partner1 = playerNames[1];
+                partner2 = playerNames[3];
+            }
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Victory! 🏆")
+                    .setMessage(winningTeam + " has won Ludo Team Mode!\n\nCooperative Partners:\n• " + partner1 + "\n• " + partner2 + "\n\nAll 8 tokens have been secured home!")
+                    .setCancelable(false)
+                    .setPositiveButton("Play Again", (dialog, which) -> {
+                        engine.resetGame();
+                        updateUI();
+                        checkBotTurn();
+                    })
+                    .show();
+            return;
+        }
+
         List<Integer> rankings = engine.getFinishedRankings();
         StringBuilder sb = new StringBuilder();
 
@@ -566,7 +618,7 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         if (!engine.isGameOver()) {
             android.content.SharedPreferences prefs = getSharedPreferences("LudoSave", android.content.Context.MODE_PRIVATE);
-            String saveKey = "game_state_" + activePlayerCount;
+            String saveKey = engine.isTeamMode() ? "game_state_team" : "game_state_" + activePlayerCount;
             prefs.edit().putString(saveKey, engine.exportStateToJson()).apply();
         }
     }

@@ -76,6 +76,23 @@ public class LudoBot {
                 if (isDangerZone(engine, playerIdx, targetCoord, nextPos)) {
                     score -= dangerPenalty;
                 }
+
+                // Custom Team Mode: Add bonus for landing on a partner to form a block
+                if (engine.isTeamMode()) {
+                    int partner = engine.getPartnerIndex(playerIdx);
+                    if (partner != -1 && engine.isPlayerActive(partner)) {
+                        for (int pt = 0; pt < 4; pt++) {
+                            int partnerPos = engine.getTokenPositions()[partner][pt];
+                            if (partnerPos >= 1 && partnerPos <= 51) {
+                                LudoGameEngine.Point partnerCoord = engine.getCoordinateForPosition(partner, pt, partnerPos);
+                                if (partnerCoord != null && partnerCoord.x == targetCoord.x && partnerCoord.y == targetCoord.y) {
+                                    score += 35; // block creation bonus!
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             // Priority 2 & 3: Reach home or enter home lane
@@ -106,6 +123,7 @@ public class LudoBot {
         int[][] positions = engine.getTokenPositions();
         for (int p = 0; p < 4; p++) {
             if (p == botPlayerIdx || !engine.isPlayerActive(p)) continue;
+            if (engine.isTeamMode() && (p % 2 == botPlayerIdx % 2)) continue; // Teammate/partner exclusion
             for (int t = 0; t < 4; t++) {
                 if (positions[p][t] >= 1 && positions[p][t] <= 51) {
                     LudoGameEngine.Point oppPoint = engine.getTokenCoordinate(p, t);
@@ -125,6 +143,7 @@ public class LudoBot {
         int[][] positions = engine.getTokenPositions();
         for (int p = 0; p < 4; p++) {
             if (p == botPlayerIdx || !engine.isPlayerActive(p)) continue;
+            if (engine.isTeamMode() && (p % 2 == botPlayerIdx % 2)) continue; // Teammate/partner exclusion
             for (int t = 0; t < 4; t++) {
                 int oppPos = positions[p][t];
                 if (oppPos >= 1 && oppPos <= 51) {

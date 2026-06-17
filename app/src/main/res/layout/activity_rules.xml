@@ -166,7 +166,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="32dp"
+                android:layout_marginBottom="16dp"
                 app:cardBackgroundColor="#20FFFFFF"
                 app:cardCornerRadius="16dp"
                 app:strokeColor="#22FFFFFF"
@@ -194,6 +194,41 @@
                         android:textSize="15sp"
                         android:lineSpacingExtra="6dp"
                         android:text="• The first player to move all 4 tokens to the Home square wins.\n• The game continues until all but one player finishes." />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Section 5 -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                app:cardBackgroundColor="#20FFFFFF"
+                app:cardCornerRadius="16dp"
+                app:strokeColor="#22FFFFFF"
+                app:strokeWidth="1dp">
+                
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="5. Team Up / Team Mode"
+                        android:textColor="@color/accent_gold"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp" />
+                        
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/text_primary"
+                        android:textSize="15sp"
+                        android:lineSpacingExtra="6dp"
+                        android:text="• Teams: Red &amp; Yellow vs. Green &amp; Blue.\n• Independent Tokens: You roll on your turn and move only your own tokens unless you have finished.\n• Helping Partner: If you secure all 4 of your tokens home, you continue rolling on your turn and use the rolls to move your partner's tokens.\n• Safe Sharing: Landing on your partner's space creates a block. Opponents cannot land on or pass through this block!\n• Captures: You cannot capture your partner's tokens. Standard capture rules apply only to enemy tokens.\n• Play with AI: 1, 2, or 3 human players can play Team Mode cooperatively with AI. AI players will automatically fill in for any absent players." />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

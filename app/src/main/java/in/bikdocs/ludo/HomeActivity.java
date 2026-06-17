@@ -25,9 +25,13 @@ public class HomeActivity extends AppCompatActivity {
     public static final String EXTRA_VS_AI = "vs_ai";
     public static final String EXTRA_PLAYER_NAMES = "player_names";
 
-    private int selectedPlayerCount = 4; // default
+    private int selectedPlayerCount = 2; // default (1v1)
     private LinearLayout card2, card3, card4;
     private MaterialButton startButton;
+    private boolean isTeamModeSelected = false;
+    private LinearLayout cardModeClassic, cardModeTeam;
+    private TextView tvModeClassicTitle, tvModeTeamTitle;
+    private LinearLayout sectionGameMode;
     private EditText inputName1, inputName2, inputName3, inputName4;
     private ImageView avatar1, avatar2, avatar3, avatar4;
     private LinearLayout rowPlayer2, rowPlayer3, rowPlayer4;
@@ -56,6 +60,11 @@ public class HomeActivity extends AppCompatActivity {
         card4 = findViewById(R.id.card_4p);
         startButton = findViewById(R.id.btn_start);
         dimOverlay = findViewById(R.id.dim_overlay);
+        cardModeClassic = findViewById(R.id.card_mode_classic);
+        cardModeTeam = findViewById(R.id.card_mode_team);
+        tvModeClassicTitle = findViewById(R.id.tv_mode_classic_title);
+        tvModeTeamTitle = findViewById(R.id.tv_mode_team_title);
+        sectionGameMode = findViewById(R.id.section_game_mode);
         ImageView logoDice = findViewById(R.id.logo_dice);
         View logoGlow = findViewById(R.id.logo_glow);
 
@@ -141,29 +150,44 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         // Default selection highlight
-        updateChipSelection();
-        updatePlayerNameVisibility();
+        updateModeSelectionUI();
 
         // Card click listeners
         if (card2 != null) {
             card2.setOnClickListener(v -> {
                 selectedPlayerCount = 2;
-                updateChipSelection();
-                updatePlayerNameVisibility();
+                isTeamModeSelected = false;
+                updateModeSelectionUI();
             });
         }
         if (card3 != null) {
             card3.setOnClickListener(v -> {
                 selectedPlayerCount = 3;
-                updateChipSelection();
-                updatePlayerNameVisibility();
+                isTeamModeSelected = false;
+                updateModeSelectionUI();
             });
         }
         if (card4 != null) {
             card4.setOnClickListener(v -> {
                 selectedPlayerCount = 4;
-                updateChipSelection();
-                updatePlayerNameVisibility();
+                updateModeSelectionUI();
+            });
+        }
+
+        // Game Mode click listeners
+        if (cardModeClassic != null) {
+            cardModeClassic.setOnClickListener(v -> {
+                if (!isTeamModeSelected) return;
+                isTeamModeSelected = false;
+                updateModeSelectionUI();
+            });
+        }
+        if (cardModeTeam != null) {
+            cardModeTeam.setOnClickListener(v -> {
+                if (isTeamModeSelected) return;
+                isTeamModeSelected = true;
+                selectedPlayerCount = 4;
+                updateModeSelectionUI();
             });
         }
 
@@ -178,11 +202,14 @@ public class HomeActivity extends AppCompatActivity {
             @SuppressWarnings("deprecation")
             Runnable launchMainActivity = () -> {
                 Intent intent = new Intent(HomeActivity.this, MainActivity.class);
-                intent.putExtra(EXTRA_PLAYER_COUNT, selectedPlayerCount);
+                intent.putExtra(EXTRA_PLAYER_COUNT, isTeamModeSelected ? 4 : selectedPlayerCount);
+                intent.putExtra("is_team_mode", isTeamModeSelected);
                 
                 // Set vsAI flag if at least one active player is AI
                 boolean vsAI = false;
-                if (selectedPlayerCount == 2) {
+                if (isTeamModeSelected) {
+                    vsAI = playerIsAI[1] || playerIsAI[2] || playerIsAI[3];
+                } else if (selectedPlayerCount == 2) {
                     vsAI = playerIsAI[2]; // Player 3 (index 2) is active in 2P mode
                 } else if (selectedPlayerCount == 3) {
                     vsAI = playerIsAI[1] || playerIsAI[2];
@@ -208,12 +235,12 @@ public class HomeActivity extends AppCompatActivity {
                 }
             };
 
-            String saveKey = "game_state_" + selectedPlayerCount;
+            String saveKey = isTeamModeSelected ? "game_state_team" : "game_state_" + selectedPlayerCount;
             android.content.SharedPreferences prefs = getSharedPreferences("LudoSave", android.content.Context.MODE_PRIVATE);
             if (prefs.contains(saveKey)) {
                 new androidx.appcompat.app.AlertDialog.Builder(HomeActivity.this)
                         .setTitle("Game in Progress")
-                        .setMessage("You have a saved game for " + selectedPlayerCount + " players. Do you want to resume it or start a new game?")
+                        .setMessage(isTeamModeSelected ? "You have a saved Team Mode game. Do you want to resume it or start a new game?" : "You have a saved game for " + selectedPlayerCount + " players. Do you want to resume it or start a new game?")
                         .setPositiveButton("Resume", (dialog, which) -> {
                             launchMainActivity.run();
                         })
@@ -375,6 +402,12 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void updatePlayerNameVisibility() {
+        if (isTeamModeSelected) {
+            if (rowPlayer2 != null) rowPlayer2.setVisibility(View.VISIBLE);
+            if (rowPlayer3 != null) rowPlayer3.setVisibility(View.VISIBLE);
+            if (rowPlayer4 != null) rowPlayer4.setVisibility(View.VISIBLE);
+            return;
+        }
         switch (selectedPlayerCount) {
             case 2:
                 if (rowPlayer2 != null) rowPlayer2.setVisibility(View.GONE);
@@ -505,6 +538,73 @@ public class HomeActivity extends AppCompatActivity {
                 .rotation(isMenuExpanded ? 180f : 0f)
                 .setDuration(350)
                 .start();
+        }
+    }
+
+    private void updateModeSelectionUI() {
+        if (sectionGameMode != null) {
+            if (selectedPlayerCount == 4) {
+                sectionGameMode.setVisibility(View.VISIBLE);
+            } else {
+                sectionGameMode.setVisibility(View.GONE);
+            }
+        }
+
+        if (cardModeClassic == null || cardModeTeam == null || tvModeClassicTitle == null || tvModeTeamTitle == null) return;
+        
+        if (isTeamModeSelected) {
+            cardModeTeam.setBackgroundResource(R.drawable.bg_player_chip_selected);
+            tvModeTeamTitle.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.accent_gold));
+            cardModeTeam.animate().scaleX(1.05f).scaleY(1.05f).setDuration(200).start();
+
+            cardModeClassic.setBackgroundResource(R.drawable.bg_player_chip);
+            tvModeClassicTitle.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.text_primary));
+            cardModeClassic.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start();
+
+            if (card2 != null) {
+                card2.setEnabled(false);
+                card2.setAlpha(0.3f);
+            }
+            if (card3 != null) {
+                card3.setEnabled(false);
+                card3.setAlpha(0.3f);
+            }
+        } else {
+            cardModeClassic.setBackgroundResource(R.drawable.bg_player_chip_selected);
+            tvModeClassicTitle.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.accent_gold));
+            cardModeClassic.animate().scaleX(1.05f).scaleY(1.05f).setDuration(200).start();
+
+            cardModeTeam.setBackgroundResource(R.drawable.bg_player_chip);
+            tvModeTeamTitle.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.text_primary));
+            cardModeTeam.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start();
+
+            if (card2 != null) {
+                card2.setEnabled(true);
+                card2.setAlpha(1.0f);
+            }
+            if (card3 != null) {
+                card3.setEnabled(true);
+                card3.setAlpha(1.0f);
+            }
+        }
+
+        updateChipSelection();
+        updatePlayerNameVisibility();
+        updatePlayerNameHints();
+    }
+
+    private void updatePlayerNameHints() {
+        if (inputName1 == null || inputName2 == null || inputName3 == null || inputName4 == null) return;
+        if (isTeamModeSelected) {
+            inputName1.setHint("Player 1 (Red & Yel)");
+            inputName2.setHint("Player 2 (Grn & Blu)");
+            inputName3.setHint("Player 3 (Red & Yel)");
+            inputName4.setHint("Player 4 (Grn & Blu)");
+        } else {
+            inputName1.setHint("Player 1");
+            inputName2.setHint("Player 2");
+            inputName3.setHint("Player 3");
+            inputName4.setHint("Player 4");
         }
     }
 }
