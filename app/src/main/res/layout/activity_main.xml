@@ -208,6 +208,14 @@
         </LinearLayout>
     </LinearLayout>
 
+    <!-- Barrier to keep the board below the active top player indicator -->
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/top_indicators_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="indicator_1,indicator_2" />
+
     <!-- Ludo Board Container -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/board_card"
@@ -220,7 +228,7 @@
         app:strokeWidth="1.5dp"
         app:cardElevation="8dp"
         app:layout_constraintBottom_toTopOf="@id/indicator_0"
-        app:layout_constraintTop_toBottomOf="@id/indicator_1">
+        app:layout_constraintTop_toBottomOf="@id/top_indicators_barrier">
 
         <!-- Custom Board View -->
         <in.bikdocs.ludo.LudoBoardView
