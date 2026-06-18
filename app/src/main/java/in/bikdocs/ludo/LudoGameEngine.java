@@ -419,27 +419,14 @@ public class LudoGameEngine {
                 // To get out of yard, you must roll a 6
                 if (diceValue == 6) {
                     Point startCoord = paths[targetPlayerIdx][1];
-                    if (startCoord != null && !isCoordinateBlockedForPlayer(startCoord, targetPlayerIdx)) {
+                    if (startCoord != null) {
                         validTokens.add(t);
                     }
                 }
             } else if (pos < POSITION_GOAL) {
                 // Cannot exceed final goal position
                 if (pos + diceValue <= POSITION_GOAL) {
-                    boolean blocked = false;
-                    for (int step = 1; step <= diceValue; step++) {
-                        int checkPos = pos + step;
-                        if (checkPos >= 1 && checkPos <= 51) {
-                            Point stepCoord = paths[targetPlayerIdx][checkPos];
-                            if (stepCoord != null && isCoordinateBlockedForPlayer(stepCoord, targetPlayerIdx)) {
-                                blocked = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!blocked) {
-                        validTokens.add(t);
-                    }
+                    validTokens.add(t);
                 }
             }
         }
@@ -482,9 +469,9 @@ public class LudoGameEngine {
         if (nextPos >= 1 && nextPos <= 51) {
             Point targetCoord = paths[playerIdx][nextPos];
             
-            // Check if this coordinate matches a safe zone
+            // Check if this coordinate matches a safe zone or is protected by multiple enemies
             int mainTrackIndex = getMainTrackIndex(targetCoord);
-            if (isSafeIndex(mainTrackIndex)) {
+            if (isSafeIndex(mainTrackIndex) || isCoordinateBlockedForPlayer(targetCoord, playerIdx)) {
                 safe = true;
             } else {
                 // Check other players' tokens on the same coordinate

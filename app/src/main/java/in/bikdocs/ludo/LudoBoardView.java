@@ -414,7 +414,7 @@ public class LudoBoardView extends View {
 
     private void drawTokens(Canvas canvas) {
         int[][] positions = engine.getTokenPositions();
-        int curPlayerIdx = engine.getCurrentPlayerIndex();
+        int curPlayerIdx = engine.getMovingPlayerIndex();
 
         // Pass 1: Draw tokens for all players EXCEPT the current player
         for (int p = 0; p < 4; p++) {

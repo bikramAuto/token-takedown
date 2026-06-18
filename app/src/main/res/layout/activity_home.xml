@@ -81,113 +81,22 @@
             android:layout_height="wrap_content"
             android:text="SELECT PLAYERS"
             android:textColor="@color/accent_gold"
-            android:textSize="12sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:letterSpacing="0.2"
-            android:layout_gravity="start"
-            android:layout_marginBottom="8dp" />
+            android:layout_gravity="center"
+            android:layout_marginBottom="12dp" />
 
         <!-- 3 Cards Row -->
-        <LinearLayout
+        <!-- ViewPager2 for horizontal player selection cards -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/view_pager_cards"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="16dp">
-
-            <!-- 2 Players Card -->
-            <LinearLayout
-                android:id="@+id/card_2p"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:background="@drawable/bg_player_chip"
-                android:clickable="true"
-                android:focusable="true">
-                
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="2"
-                    android:textColor="@color/accent_gold"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:fontFamily="sans-serif-black" />
-                    
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Players"
-                    android:textColor="@color/text_primary"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <!-- 3 Players Card -->
-            <LinearLayout
-                android:id="@+id/card_3p"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="4dp"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:background="@drawable/bg_player_chip"
-                android:clickable="true"
-                android:focusable="true">
-                
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="3"
-                    android:textColor="@color/accent_gold"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:fontFamily="sans-serif-black" />
-                    
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Players"
-                    android:textColor="@color/text_primary"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <!-- 4 Players Card -->
-            <LinearLayout
-                android:id="@+id/card_4p"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:background="@drawable/bg_player_chip_selected"
-                android:clickable="true"
-                android:focusable="true">
-                
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="4"
-                    android:textColor="@color/accent_gold"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:fontFamily="sans-serif-black" />
-                    
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Players"
-                    android:textColor="@color/text_primary"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-        </LinearLayout>
+            android:layout_height="280dp"
+            android:layout_marginBottom="16dp"
+            android:paddingHorizontal="56dp"
+            android:clipChildren="false"
+            android:clipToPadding="false" />
 
         <!-- Game Mode Section -->
         <LinearLayout
@@ -264,12 +173,14 @@
 
         <!-- Player Names Section -->
         <LinearLayout
+            android:id="@+id/section_player_names"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="@drawable/bg_card_glass"
             android:padding="16dp"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="16dp"
+            android:visibility="gone">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -486,9 +397,11 @@
 
         <!-- Start Button -->
         <FrameLayout
+            android:id="@+id/container_start_button"
             android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="12dp"
+            android:visibility="gone">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_start"

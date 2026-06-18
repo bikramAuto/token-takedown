@@ -18,6 +18,8 @@ import android.os.Build;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
+import androidx.viewpager2.widget.ViewPager2;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -26,7 +28,11 @@ public class HomeActivity extends AppCompatActivity {
     public static final String EXTRA_PLAYER_NAMES = "player_names";
 
     private int selectedPlayerCount = 2; // default (1v1)
-    private LinearLayout card2, card3, card4;
+    private ViewPager2 viewPager;
+    private View sectionPlayerNames;
+    private View containerStartButton;
+    private View btnSettingsCircle;
+    private boolean isCardSelectionExpanded = false;
     private MaterialButton startButton;
     private boolean isTeamModeSelected = false;
     private LinearLayout cardModeClassic, cardModeTeam;
@@ -55,9 +61,9 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        card2 = findViewById(R.id.card_2p);
-        card3 = findViewById(R.id.card_3p);
-        card4 = findViewById(R.id.card_4p);
+        viewPager = findViewById(R.id.view_pager_cards);
+        sectionPlayerNames = findViewById(R.id.section_player_names);
+        containerStartButton = findViewById(R.id.container_start_button);
         startButton = findViewById(R.id.btn_start);
         dimOverlay = findViewById(R.id.dim_overlay);
         cardModeClassic = findViewById(R.id.card_mode_classic);
@@ -149,53 +155,72 @@ public class HomeActivity extends AppCompatActivity {
             });
         }
 
+        btnSettingsCircle = findViewById(R.id.btn_settings_circle);
+
+        // Configure ViewPager2
+        java.util.List<PlayerCard> cardList = new java.util.ArrayList<>();
+        cardList.add(new PlayerCard(2, R.drawable.ic_card_2p, "2 PLAYERS"));
+        cardList.add(new PlayerCard(3, R.drawable.ic_card_3p, "3 PLAYERS"));
+        cardList.add(new PlayerCard(4, R.drawable.ic_card_4p, "4 PLAYERS"));
+        cardList.add(new PlayerCard(4, R.drawable.ic_card_team, "TEAM MODE"));
+
+        CardAdapter adapter = new CardAdapter(cardList);
+        if (viewPager != null) {
+            viewPager.setAdapter(adapter);
+            viewPager.setOffscreenPageLimit(4);
+            
+            // Page transformer for card styling, scale and transparency
+            viewPager.setPageTransformer((page, position) -> {
+                float r = 1 - Math.abs(position);
+                page.setScaleY(0.85f + r * 0.15f);
+                page.setScaleX(0.85f + r * 0.15f);
+                page.setAlpha(0.5f + r * 0.5f);
+                
+                com.google.android.material.card.MaterialCardView cardRoot = page.findViewById(R.id.card_root);
+                if (cardRoot != null) {
+                    if (Math.abs(position) < 0.15f) {
+                        cardRoot.setStrokeWidth(0);
+                        cardRoot.setCardElevation(dpToPx(8));
+                    } else {
+                        cardRoot.setStrokeWidth(0);
+                        cardRoot.setCardElevation(dpToPx(2));
+                    }
+                }
+            });
+
+            // Page change callback
+            viewPager.registerOnPageChangeCallback(new androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+                @Override
+                public void onPageSelected(int position) {
+                    if (isCardSelectionExpanded) {
+                        expandPlayerNameCard(position);
+                    } else {
+                        if (position == 3) {
+                            selectedPlayerCount = 4;
+                            isTeamModeSelected = true;
+                        } else {
+                            selectedPlayerCount = position + 2;
+                            isTeamModeSelected = false;
+                        }
+                        updateModeSelectionUI();
+                    }
+                }
+            });
+        }
+
         // Default selection highlight
         updateModeSelectionUI();
 
-        // Card click listeners
-        if (card2 != null) {
-            card2.setOnClickListener(v -> {
-                selectedPlayerCount = 2;
-                isTeamModeSelected = false;
-                updateModeSelectionUI();
-            });
-        }
-        if (card3 != null) {
-            card3.setOnClickListener(v -> {
-                selectedPlayerCount = 3;
-                isTeamModeSelected = false;
-                updateModeSelectionUI();
-            });
-        }
-        if (card4 != null) {
-            card4.setOnClickListener(v -> {
-                selectedPlayerCount = 4;
-                updateModeSelectionUI();
-            });
-        }
-
-        // Game Mode click listeners
+        // Game Mode click listeners (now disabled since Game Mode section is hidden)
         if (cardModeClassic != null) {
-            cardModeClassic.setOnClickListener(v -> {
-                if (!isTeamModeSelected) return;
-                isTeamModeSelected = false;
-                updateModeSelectionUI();
-            });
+            cardModeClassic.setOnClickListener(v -> {});
         }
         if (cardModeTeam != null) {
-            cardModeTeam.setOnClickListener(v -> {
-                if (isTeamModeSelected) return;
-                isTeamModeSelected = true;
-                selectedPlayerCount = 4;
-                updateModeSelectionUI();
-            });
+            cardModeTeam.setOnClickListener(v -> {});
         }
 
         // Animated entrances
-        animateEntrance(card2, 100);
-        animateEntrance(card3, 200);
-        animateEntrance(card4, 300);
-        animateEntrance(startButton, 500);
+        animateEntrance(viewPager, 100);
 
         // Start button listener
         startButton.setOnClickListener(v -> {
@@ -427,23 +452,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    private void updateChipSelection() {
-        styleCard(card2, selectedPlayerCount == 2);
-        styleCard(card3, selectedPlayerCount == 3);
-        styleCard(card4, selectedPlayerCount == 4);
-        updateStartButtonText();
-    }
 
-    private void styleCard(LinearLayout card, boolean selected) {
-        if (card == null) return;
-        if (selected) {
-            card.setBackgroundResource(R.drawable.bg_player_chip_selected);
-            card.animate().scaleX(1.05f).scaleY(1.05f).setDuration(200).start();
-        } else {
-            card.setBackgroundResource(R.drawable.bg_player_chip);
-            card.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start();
-        }
-    }
 
     private void animateEntrance(View view, long delay) {
         if (view == null) return;
@@ -543,52 +552,10 @@ public class HomeActivity extends AppCompatActivity {
 
     private void updateModeSelectionUI() {
         if (sectionGameMode != null) {
-            if (selectedPlayerCount == 4) {
-                sectionGameMode.setVisibility(View.VISIBLE);
-            } else {
-                sectionGameMode.setVisibility(View.GONE);
-            }
+            sectionGameMode.setVisibility(View.GONE);
         }
 
-        if (cardModeClassic == null || cardModeTeam == null || tvModeClassicTitle == null || tvModeTeamTitle == null) return;
-        
-        if (isTeamModeSelected) {
-            cardModeTeam.setBackgroundResource(R.drawable.bg_player_chip_selected);
-            tvModeTeamTitle.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.accent_gold));
-            cardModeTeam.animate().scaleX(1.05f).scaleY(1.05f).setDuration(200).start();
-
-            cardModeClassic.setBackgroundResource(R.drawable.bg_player_chip);
-            tvModeClassicTitle.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.text_primary));
-            cardModeClassic.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start();
-
-            if (card2 != null) {
-                card2.setEnabled(false);
-                card2.setAlpha(0.3f);
-            }
-            if (card3 != null) {
-                card3.setEnabled(false);
-                card3.setAlpha(0.3f);
-            }
-        } else {
-            cardModeClassic.setBackgroundResource(R.drawable.bg_player_chip_selected);
-            tvModeClassicTitle.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.accent_gold));
-            cardModeClassic.animate().scaleX(1.05f).scaleY(1.05f).setDuration(200).start();
-
-            cardModeTeam.setBackgroundResource(R.drawable.bg_player_chip);
-            tvModeTeamTitle.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.text_primary));
-            cardModeTeam.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start();
-
-            if (card2 != null) {
-                card2.setEnabled(true);
-                card2.setAlpha(1.0f);
-            }
-            if (card3 != null) {
-                card3.setEnabled(true);
-                card3.setAlpha(1.0f);
-            }
-        }
-
-        updateChipSelection();
+        updateStartButtonText();
         updatePlayerNameVisibility();
         updatePlayerNameHints();
     }
@@ -605,6 +572,155 @@ public class HomeActivity extends AppCompatActivity {
             inputName2.setHint("Player 2");
             inputName3.setHint("Player 3");
             inputName4.setHint("Player 4");
+        }
+    }
+
+    // ViewPager2 Card model & adapter implementation
+    private static class PlayerCard {
+        final int playerCount;
+        final int imageRes;
+        final String title;
+
+        PlayerCard(int playerCount, int imageRes, String title) {
+            this.playerCount = playerCount;
+            this.imageRes = imageRes;
+            this.title = title;
+        }
+    }
+
+    private class CardAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<CardAdapter.CardViewHolder> {
+        private final java.util.List<PlayerCard> items;
+
+        CardAdapter(java.util.List<PlayerCard> items) {
+            this.items = items;
+        }
+
+        @androidx.annotation.NonNull
+        @Override
+        public CardViewHolder onCreateViewHolder(@androidx.annotation.NonNull android.view.ViewGroup parent, int viewType) {
+            android.view.View view = android.view.LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_player_card, parent, false);
+            return new CardViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@androidx.annotation.NonNull CardViewHolder holder, int position) {
+            PlayerCard item = items.get(position);
+            holder.imageView.setImageResource(item.imageRes);
+
+            holder.cardRoot.setOnClickListener(v -> onCardClicked(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return items.size();
+        }
+
+        class CardViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
+            final com.google.android.material.card.MaterialCardView cardRoot;
+            final ImageView imageView;
+
+            CardViewHolder(android.view.View itemView) {
+                super(itemView);
+                cardRoot = itemView.findViewById(R.id.card_root);
+                imageView = itemView.findViewById(R.id.card_image);
+            }
+        }
+    }
+
+    private void onCardClicked(int position) {
+        if (viewPager.getCurrentItem() != position) {
+            viewPager.setCurrentItem(position, true);
+            return;
+        }
+
+        if (isCardSelectionExpanded) {
+            collapsePlayerNameCard();
+        } else {
+            expandPlayerNameCard(position);
+        }
+    }
+
+    private void expandPlayerNameCard(int position) {
+        if (position == 3) {
+            selectedPlayerCount = 4;
+            isTeamModeSelected = true;
+        } else {
+            selectedPlayerCount = position + 2;
+            isTeamModeSelected = false;
+        }
+        isCardSelectionExpanded = true;
+
+        // Hide the settings gear
+        if (btnSettingsCircle != null) {
+            btnSettingsCircle.setVisibility(View.GONE);
+            if (isMenuExpanded) {
+                toggleSettingsMenu();
+            }
+        }
+        
+        // Hide player cards
+        if (viewPager != null) {
+            viewPager.animate().alpha(0f).setDuration(250).withEndAction(() -> viewPager.setVisibility(View.GONE)).start();
+        }
+
+        // Show names card and start button
+        if (sectionPlayerNames != null) {
+            sectionPlayerNames.setVisibility(View.VISIBLE);
+            sectionPlayerNames.setAlpha(0f);
+            sectionPlayerNames.animate().alpha(1f).setDuration(250).start();
+        }
+        if (containerStartButton != null) {
+            containerStartButton.setVisibility(View.VISIBLE);
+            containerStartButton.setAlpha(0f);
+            containerStartButton.animate().alpha(1f).setDuration(250).start();
+        }
+
+        // Hide game mode selector completely since Team Mode is now a primary card
+        if (sectionGameMode != null) {
+            sectionGameMode.setVisibility(View.GONE);
+        }
+
+        updatePlayerNameVisibility();
+        updatePlayerNameHints();
+    }
+
+    private void collapsePlayerNameCard() {
+        isCardSelectionExpanded = false;
+
+        // Show settings gear
+        if (btnSettingsCircle != null) {
+            btnSettingsCircle.setVisibility(View.VISIBLE);
+            btnSettingsCircle.setAlpha(0f);
+            btnSettingsCircle.animate().alpha(1f).setDuration(200).start();
+        }
+        
+        // Show player cards
+        if (viewPager != null) {
+            viewPager.setVisibility(View.VISIBLE);
+            viewPager.animate().alpha(1f).setDuration(250).start();
+        }
+
+        // Hide names card, start button, and game mode card
+        if (sectionPlayerNames != null) {
+            sectionPlayerNames.setVisibility(View.GONE);
+        }
+        if (containerStartButton != null) {
+            containerStartButton.setVisibility(View.GONE);
+        }
+        if (sectionGameMode != null) {
+            sectionGameMode.setVisibility(View.GONE);
+        }
+    }
+    
+    @Override
+    public void onBackPressed() {
+        if (isCardSelectionExpanded) {
+            collapsePlayerNameCard();
+        } else if (isMenuExpanded) {
+            toggleSettingsMenu();
+        } else {
+            super.onBackPressed();
         }
     }
 }

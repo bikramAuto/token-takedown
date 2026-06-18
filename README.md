@@ -5,9 +5,10 @@ A modern, highly polished, offline Ludo board game for Android. Play with your f
 ## Features
 
 * **Classic Ludo Rules:** Full support for the standard Ludo ruleset including safe zones, capturing, and consecutive 6-roll bonuses.
+* **Team Mode Strategy:** Form blockades with your partner! Opponent blockades act as Safe Zones where you can land without capturing or being captured.
 * **Flexible Player Configurations:** Choose to play a 2-player, 3-player, or 4-player match.
 * **Play vs AI:** Don't have friends around? Toggle the "Play vs AI" switch on the home screen to have the `LudoBot` take over the remaining spots.
-* **Seamless Auto-Save:** Never lose your game progress. If you accidentally close the app or hit the back button, your game state is instantly saved. The home screen will intelligently display "Resume Game" to let you pick up exactly where you left off.
+* **Seamless Auto-Save:** Never lose your game progress. If you accidentally close the app or hit the back button, your game state is instantly saved. The home screen will intelligently display "" to let you pick up exactly where you left off.
 * **Low-Latency Audio:** Built on Android's `SoundPool` for instant, lag-free audio feedback. Features custom RPG-style dice clattering and snappy procedural synth tones.
 * **Premium UI/UX:** 
   * Sleek dark mode aesthetics with elegant gold accents.

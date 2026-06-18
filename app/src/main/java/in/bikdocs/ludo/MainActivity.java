@@ -197,8 +197,8 @@ public class MainActivity extends AppCompatActivity {
             if (isRolling || engine.isDiceRolled())
                 return;
             // Only roll if current player is human
-            int currentIdx = engine.getCurrentPlayerIndex();
-            if (!engine.isPlayerAI(currentIdx)) {
+            int movingIdx = engine.getMovingPlayerIndex();
+            if (!engine.isPlayerAI(movingIdx)) {
                 performDiceRollFlow();
             }
         });
@@ -243,8 +243,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
             // Identify valid moves
-            int currentIdx = engine.getCurrentPlayerIndex();
-            List<Integer> validMoves = engine.getValidMoves(currentIdx);
+            int movingIdx = engine.getMovingPlayerIndex();
+            List<Integer> validMoves = engine.getValidMoves(movingIdx);
             boardView.setValidMoves(validMoves);
 
             if (validMoves.isEmpty()) {
@@ -320,8 +320,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkBotTurn() {
-        int currentIdx = engine.getCurrentPlayerIndex();
-        if (engine.isPlayerAI(currentIdx)) {
+        int movingIdx = engine.getMovingPlayerIndex();
+        if (engine.isPlayerAI(movingIdx)) {
             // Schedule bot actions with delays for nice UI pacing
             uiHandler.postDelayed(() -> {
                 if (engine.isDiceRolled() || isFinishing() || isDestroyed())
@@ -357,9 +357,8 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 // AI logic here...
-                int currentIdx = engine.getCurrentPlayerIndex();
-                List<Integer> validMoves = engine.getValidMoves(currentIdx);
                 int movingPlayerIdx = engine.getMovingPlayerIndex();
+                List<Integer> validMoves = engine.getValidMoves(movingPlayerIdx);
 
                 if (validMoves.isEmpty()) {
                     engine.nextTurn();
@@ -402,7 +401,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateUI() {
         LudoGameEngine.PlayerColor cur = engine.getCurrentPlayer();
-        int color = getPlayerColorValue(engine.getCurrentPlayerIndex());
+        int color = getPlayerColorValue(engine.getMovingPlayerIndex());
 
         // Update dice button background to current player color
         diceButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(color));
@@ -425,7 +424,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Enable/Disable roll button
-        if (engine.isDiceRolled() || engine.isPlayerAI(engine.getCurrentPlayerIndex())) {
+        if (engine.isDiceRolled() || engine.isPlayerAI(engine.getMovingPlayerIndex())) {
             diceButton.setAlpha(0.5f);
             diceButton.setClickable(false);
         } else {
@@ -435,7 +434,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Move dice physically to the active player's placeholder
         FrameLayout targetPlaceholder = null;
-        switch (engine.getCurrentPlayerIndex()) {
+        switch (engine.getMovingPlayerIndex()) {
             case 0:
                 targetPlaceholder = findViewById(R.id.placeholder_0);
                 break;
@@ -463,7 +462,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Update pointers visibility based on whose turn it is
-        int currentTurn = engine.getCurrentPlayerIndex();
+        int currentTurn = engine.getMovingPlayerIndex();
         for (int i = 0; i < 4; i++) {
             int pointerId = getResources().getIdentifier("pointer_" + i, "id", getPackageName());
             View pointerView = findViewById(pointerId);
