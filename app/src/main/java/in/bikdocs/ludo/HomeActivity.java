@@ -180,10 +180,10 @@ public class HomeActivity extends AppCompatActivity {
                 if (cardRoot != null) {
                     if (Math.abs(position) < 0.15f) {
                         cardRoot.setStrokeWidth(0);
-                        cardRoot.setCardElevation(dpToPx(8));
+                        cardRoot.setCardElevation(0);
                     } else {
                         cardRoot.setStrokeWidth(0);
-                        cardRoot.setCardElevation(dpToPx(2));
+                        cardRoot.setCardElevation(0);
                     }
                 }
             });
